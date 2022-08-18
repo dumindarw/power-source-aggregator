@@ -2,7 +2,7 @@ package com.vpp.psa.integration;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeAll;
+import org.json.JSONArray;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -43,9 +43,12 @@ class PowerSourcesAggregatorApplicationTests {
 
 		try(InputStream inputStream =Thread.currentThread().getContextClassLoader().getResourceAsStream("test-data.json")){
 			ObjectMapper mapper = new ObjectMapper();
-			JsonNode jsonNode = mapper.readValue(inputStream ,
+			JsonNode jsonArr = mapper.readValue(inputStream ,
 					JsonNode.class);
-			json = mapper.writeValueAsString(jsonNode);
+			//jsonArr.length();
+			//Integer.parseInt(jsonArr.getJSONObject(0).getString("postcode"));
+
+			json = mapper.writeValueAsString(jsonArr);
 		}
 		catch(Exception e){
 			throw new RuntimeException(e);

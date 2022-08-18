@@ -6,12 +6,9 @@ import com.vpp.psa.generated.tables.BatteryInfo;
 import com.vpp.psa.model.Battery;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.*;
-import org.jooq.exception.DataAccessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.sql.SQLException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;

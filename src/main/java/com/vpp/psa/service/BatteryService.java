@@ -32,7 +32,7 @@ public class BatteryService {
                 .filter(battery ->
                         battery.getCapacity() > 0 &&
                                 battery.getName() != null &&
-                                postCodeFilter(battery))
+                                battery.getPostcode() > 0)
                         .map(battery -> batteryRepo.createBattery(battery))
                         .reduce(0, Integer::sum);
 
