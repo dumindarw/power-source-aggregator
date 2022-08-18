@@ -22,6 +22,6 @@ docker run -dt --name mariadb -p 13306:3306 -e MARIADB_ROOT_PASSWORD=root -e MAR
 
 ### APIs
 
-`curl -X POST -d '[{ "name": "Canningtonu", "postcode": "6107","capacity": 13500  }]' -H 'Content-Type: application/json' http://localhost:8080`
+`curl -X POST -d '[{ "name": "Canningtonu", "postcode": "6107","capacity": 13500  }]' -H 'Content-Type: application/json' http://localhost:5000`
 
-`curl -X GET -H 'Content-Type: application/json' 'http://localhost:8080?postCodeFrom=6107&postCodeTo=6120'`
+`curl -X GET -H 'Content-Type: application/json' 'http://localhost:5000?postCodeFrom=6107&postCodeTo=6120'`
