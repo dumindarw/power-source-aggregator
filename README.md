@@ -1,6 +1,6 @@
 ## Power Source Aggregator 
 
-https://power-sources-aggregator-bkt.s3.amazonaws.com/code/
+http://powersourcesaggregator-env.eba-swk3begz.us-east-1.elasticbeanstalk.com/
 
 ### Start MariaDB
 ```
