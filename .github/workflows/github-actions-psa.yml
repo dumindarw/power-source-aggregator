@@ -30,13 +30,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
           aws-region: "us-east-1"
       - name: Upload package to S3 bucket
-        run: aws s3 cp deploy_package.zip s3://power-sources-aggregator-bkt/github-code/
+        run: aws s3 cp deploy_package.zip s3://power-sources-aggregator-bkt/
 
       - name: Create new ElasticBeanstalk Application Version
         run: |
             aws elasticbeanstalk create-application-version \
             --application-name power-sources-aggregator \
-            --source-bundle S3Bucket="power-sources-aggregator-bkt/github-code/",S3Key="deploy_package.zip" \
+            --source-bundle S3Bucket="power-sources-aggregator-bkt",S3Key="deploy_package.zip" \
             --version-label "ver-${{ github.sha }}" \
             --description "commit-sha-${{ github.sha }}"
 
