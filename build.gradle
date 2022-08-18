@@ -1,0 +1,115 @@
+import org.jooq.meta.jaxb.Database
+import org.jooq.meta.jaxb.Generate
+import org.jooq.meta.jaxb.Generator
+import org.jooq.meta.jaxb.Jdbc
+import org.jooq.meta.jaxb.Target
+import org.jooq.codegen.GenerationTool
+
+buildscript {
+	repositories {
+		mavenLocal()
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath 'org.jooq:jooq-codegen:3.14.16'
+		classpath 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
+		classpath 'org.flywaydb:flyway-mysql:8.5.13'
+	}
+}
+
+plugins {
+	id 'org.springframework.boot' version '2.7.2'
+	id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+	id 'java'
+	id "org.flywaydb.flyway" version "9.1.5"
+}
+
+group = 'com.vpp.psg'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('testcontainersVersion', "1.17.3")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-jooq'
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-mysql'
+	implementation 'com.google.guava:guava:31.1-jre'
+
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:mariadb'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+flyway {
+	//initSql = "CREATE DATABASE IF NOT EXISTS psa_db;CREATE OR REPLACE USER psaUser IDENTIFIED BY 'p5aus3R!';GRANT ALL ON psa_db.* TO 'psaUser'@'%';FLUSH PRIVILEGES;"
+	url = 'jdbc:mariadb://localhost:13306/psa_db'
+	user = 'psaUser'
+	password = 'p5aus3R!'
+}
+
+sourceSets {
+	main {
+		java.srcDirs = ['src/main/java']
+	}
+
+}
+
+
+task generateJOOQ(){
+	doLast {
+		SourceSet mainSourceSet = project.sourceSets.main
+		SourceDirectorySet src = mainSourceSet.allJava.srcDir("/src/main/java");
+	   	GenerationTool.generate(new org.jooq.meta.jaxb.Configuration()
+			   .withJdbc(new Jdbc()
+					   .withDriver('org.mariadb.jdbc.Driver')
+					   .withUrl('jdbc:mariadb://localhost:13306/psa_db')
+					   .withUser('psaUser')
+					   .withPassword('p5aus3R!'))
+			   .withGenerator(new Generator()
+					   .withDatabase(new Database()
+					   .withInputSchema("psa_db"))
+					   .withGenerate(new Generate()
+							   .withPojos(true)
+							   .withDaos(true))
+					   .withTarget(new Target()
+							   .withPackageName('com.vpp.psa.generated')
+
+							   .withDirectory("${sourceSets.main.java.getSrcDirs().iterator().next() }"))))
+
+
+   }
+}
+
+//compileJava.dependsOn generateJOOQ
+flywayMigrate.finalizedBy(generateJOOQ)
+
+
+

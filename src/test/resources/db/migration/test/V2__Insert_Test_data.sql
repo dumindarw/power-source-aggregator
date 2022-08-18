@@ -1,0 +1,1 @@
+INSERT INTO battery_info( name ,post_code , watt_capacity  ) VALUES ("SydneySt", 2391, 5900), ("WestPC", 2392, 5100);

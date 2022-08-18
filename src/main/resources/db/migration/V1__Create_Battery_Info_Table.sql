@@ -1,0 +1,1 @@
+CREATE TABLE battery_info( id INT AUTO_INCREMENT primary key, name VARCHAR(100) , post_code INT(5), watt_capacity DOUBLE );
