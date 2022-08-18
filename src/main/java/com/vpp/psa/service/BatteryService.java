@@ -16,6 +16,14 @@ public class BatteryService {
     @Autowired
     BatteryRepo batteryRepo;
 
+    public  boolean postCodeFilter(Battery battery){
+        int postcode = battery.getPostcode();
+        return (postcode >= 2000 && postcode <= 2100) ||
+                (postcode >= 2300 && postcode <= 2400) ||
+                (postcode >= 4000 && postcode <= 4100) ||
+                (postcode >= 4300 && postcode <= 4400);
+    }
+
     public Map<String, Integer> createBatteries(List<Battery> batteries){
 
         int requestCount = batteries.size();
@@ -24,7 +32,7 @@ public class BatteryService {
                 .filter(battery ->
                         battery.getCapacity() > 0 &&
                                 battery.getName() != null &&
-                                battery.getPostcode() > 0)
+                                postCodeFilter(battery))
                         .map(battery -> batteryRepo.createBattery(battery))
                         .reduce(0, Integer::sum);
 
@@ -36,7 +44,12 @@ public class BatteryService {
 
         Map<String,Double> batteries = batteryRepo.getBatteriesByPostcodeRange(from, to)
                 .entrySet().stream()
-                .collect(Collectors.toMap(entry -> (String)entry.getKey(), entry -> (Double)entry.getValue(), (oldValue, newValue) -> newValue, TreeMap::new));
+                .collect(Collectors
+                        .toMap(entry -> (String)entry.getKey(),
+                                entry -> (Double)entry.getValue(),
+                                (oldValue, newValue) -> newValue,
+                                TreeMap::new)
+                );
 
         DoubleSummaryStatistics summery = batteries
                 .values()
