@@ -36,7 +36,7 @@ jobs:
         run: |
             aws elasticbeanstalk create-application-version \
             --application-name power-sources-aggregator \
-            --source-bundle S3Bucket="power-sources-aggregator-bkt",S3Key="deploy_package.zip" \
+            --source-bundle S3Bucket="power-sources-aggregator-bkt/github-code/",S3Key="deploy_package.zip" \
             --version-label "ver-${{ github.sha }}" \
             --description "commit-sha-${{ github.sha }}"
 
