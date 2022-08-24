@@ -41,7 +41,7 @@ class PowerSourcesAggregatorServiceTests {
 	@Test
 	void create_batteries_then_all_accepted() {
 
-		List<Battery> batteryList = List.of(new Battery("Axs", 1234, 6600), new Battery("Zws", 1214, 6100));
+		List<Battery> batteryList = List.of(new Battery( "Axs", 1234, 6600), new Battery("Zws", 1214, 6100));
 		when(batteryRepo.createBattery(batteryList.get(0))).thenReturn(1);
 		when(batteryRepo.createBattery(batteryList.get(1))).thenReturn(1);
 
