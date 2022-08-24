@@ -6,11 +6,13 @@ import com.vpp.psa.generated.tables.BatteryInfo;
 import com.vpp.psa.model.Battery;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.*;
+import org.jooq.exception.NoDataFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -43,7 +45,7 @@ public class BatteryRepo {
                 transactionResult.set(trx.dsl().insertInto(batteryInfo)
                         .set(batteryInfo.NAME, battery.getName())
                         .set(batteryInfo.POST_CODE, battery.getPostcode())
-                        .set(batteryInfo.WATT_CAPACITY, battery.getCapacity())
+                        .set(batteryInfo.WATT_CAPACITY, battery.getWattCapacity())
                         .execute());
 
                 if (transactionResult.get() <= 0) {
@@ -73,5 +75,13 @@ public class BatteryRepo {
                 .where(batteryInfo.POST_CODE.between(from, to))
                 .fetch()
                 .intoMap(batteryInfo.NAME.getName(), batteryInfo.WATT_CAPACITY.getName());
+    }
+
+    public Battery getBatteryByName(String name) {
+
+        BatteryInfo batteryInfo = BatteryInfo.BATTERY_INFO;
+
+        return dslContext.select().from(batteryInfo).where(batteryInfo.NAME.eq(name))
+                .fetchOptional().orElseThrow(NoDataFoundException::new).into(Battery.class);
     }
 }

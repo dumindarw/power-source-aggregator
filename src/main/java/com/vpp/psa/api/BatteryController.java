@@ -35,4 +35,9 @@ public class BatteryController {
 
         return ResponseEntity.ok().body(batteryService.getBatteriesByPostcodeRange(postCodeFrom, postCodeTo));
     }
+
+    @GetMapping("{name}")
+    public ResponseEntity getBattery(@PathVariable String name){
+        return ResponseEntity.ok().body(batteryService.getBatteryByName(name));
+    }
 }

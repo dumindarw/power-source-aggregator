@@ -30,7 +30,7 @@ public class BatteryService {
 
         int successCount =  batteries.stream()
                 .filter(battery ->
-                        battery.getCapacity() > 0 &&
+                        battery.getWattCapacity() > 0 &&
                                 battery.getName() != null &&
                                 battery.getPostcode() > 0)
                         .map(battery -> batteryRepo.createBattery(battery))
@@ -60,5 +60,10 @@ public class BatteryService {
         return  Map.of("batteries", batteries.keySet(),
                 "sum", summery.getSum(),
                 "average", summery.getAverage());
+    }
+
+    public Battery getBatteryByName(String name) {
+
+        return batteryRepo.getBatteryByName(name);
     }
 }
