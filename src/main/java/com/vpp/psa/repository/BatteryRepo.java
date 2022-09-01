@@ -12,7 +12,6 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,7 @@ public class BatteryRepo {
         AtomicInteger transactionResult = new AtomicInteger();
 
         try {
-            dslContext.transaction((trx) -> {
+            dslContext.transaction(trx -> {
                 BatteryInfo batteryInfo = BatteryInfo.BATTERY_INFO;
 
                 transactionResult.set(trx.dsl().insertInto(batteryInfo)
@@ -70,7 +69,7 @@ public class BatteryRepo {
 
         BatteryInfo batteryInfo = BatteryInfo.BATTERY_INFO;
 
-        return dslContext.select(batteryInfo.NAME, batteryInfo.WATT_CAPACITY)
+        return  dslContext.select(batteryInfo.NAME, batteryInfo.WATT_CAPACITY)
                 .from(batteryInfo)
                 .where(batteryInfo.POST_CODE.between(from, to))
                 .fetch()

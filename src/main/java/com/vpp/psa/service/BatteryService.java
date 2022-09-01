@@ -4,6 +4,7 @@ import com.vpp.psa.model.Battery;
 import com.vpp.psa.repository.BatteryRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,6 +16,9 @@ public class BatteryService {
 
     @Autowired
     BatteryRepo batteryRepo;
+
+    @Autowired
+    KafkaTemplate<String, Battery> batteryKafkaTemplate;
 
     public  boolean postCodeFilter(Battery battery){
         int postcode = battery.getPostcode();
@@ -33,8 +37,16 @@ public class BatteryService {
                         battery.getWattCapacity() > 0 &&
                                 battery.getName() != null &&
                                 battery.getPostcode() > 0)
-                        .map(battery -> batteryRepo.createBattery(battery))
+                        .map(battery -> {
+                            int success = batteryRepo.createBattery(battery);
+                            if (success == 0) {
+                                batteryKafkaTemplate.send("FAILED_BATTERY", battery);
+                            }
+                            return success;
+                        })
                         .reduce(0, Integer::sum);
+
+
 
         return Map.of("sent", requestCount, "accepted", successCount);
 

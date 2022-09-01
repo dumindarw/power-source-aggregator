@@ -14,7 +14,8 @@ buildscript {
 	dependencies {
 		classpath 'org.jooq:jooq-codegen:3.14.16'
 		classpath 'org.mariadb.jdbc:mariadb-java-client:3.0.6'
-		classpath 'org.flywaydb:flyway-mysql:8.5.13'
+		//classpath 'org.flywaydb:flyway-mysql:8.5.13'
+		//classpath('com.google.cloud.tools:jib-native-image-extension-gradle:0.1.0-SNAPSHOT')
 	}
 }
 
@@ -22,7 +23,9 @@ plugins {
 	id 'org.springframework.boot' version '2.7.2'
 	id 'io.spring.dependency-management' version '1.0.12.RELEASE'
 	id 'java'
-	id "org.flywaydb.flyway" version "9.1.5"
+	//id "org.flywaydb.flyway" version "9.1.5"
+	id 'com.google.cloud.tools.jib' version '3.2.1'
+	id 'org.springframework.experimental.aot' version '0.12.1'
 }
 
 group = 'com.vpp.psg'
@@ -36,25 +39,30 @@ configurations {
 }
 
 repositories {
+	maven { url 'https://repo.spring.io/release' }
 	mavenCentral()
 }
 
 ext {
 	set('testcontainersVersion', "1.17.3")
+
 }
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-jooq'
-	implementation 'org.flywaydb:flyway-core'
-	implementation 'org.flywaydb:flyway-mysql'
+	//implementation 'org.flywaydb:flyway-core'
+	implementation 'org.liquibase:liquibase-core'
+	//implementation 'org.flywaydb:flyway-mysql'
 	implementation 'com.google.guava:guava:31.1-jre'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.kafka:spring-kafka'
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
 	testImplementation 'org.testcontainers:junit-jupiter'
 	testImplementation 'org.testcontainers:mariadb'
 }
@@ -69,12 +77,12 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-flyway {
+/*flyway {
 	//initSql = "CREATE DATABASE IF NOT EXISTS psa_db;CREATE OR REPLACE USER psaUser IDENTIFIED BY 'p5aus3R!';GRANT ALL ON psa_db.* TO 'psaUser'@'%';FLUSH PRIVILEGES;"
 	url = 'jdbc:mariadb://localhost:13306/psa_db'
 	user = 'psaUser'
 	password = 'p5aus3R!'
-}
+}*/
 
 sourceSets {
 	main {
@@ -91,7 +99,7 @@ task generateJOOQ(){
 	   	GenerationTool.generate(new org.jooq.meta.jaxb.Configuration()
 			   .withJdbc(new Jdbc()
 					   .withDriver('org.mariadb.jdbc.Driver')
-					   .withUrl('jdbc:mariadb://localhost:13306/psa_db')
+					   .withUrl('jdbc:mariadb://localhost:3306/psa_db')
 					   .withUser('psaUser')
 					   .withPassword('p5aus3R!'))
 			   .withGenerator(new Generator()
@@ -102,15 +110,34 @@ task generateJOOQ(){
 							   .withDaos(true))
 					   .withTarget(new Target()
 							   .withPackageName('com.vpp.psa.generated')
-
 							   .withDirectory("${sourceSets.main.java.getSrcDirs().iterator().next() }"))))
-
 
    }
 }
 
+tasks.named("bootBuildImage") {
+	builder = 'paketobuildpacks/builder:tiny'
+	environment = ['BP_NATIVE_IMAGE': 'true']
+	imageName = "325224159075.dkr.ecr.us-east-1.amazonaws.com/${project.name}:native"
+	publish = false
+}
+jib{
+	to {
+		image = "325224159075.dkr.ecr.us-east-1.amazonaws.com/${project.name}"
+	}
+	/*pluginExtensions {
+		pluginExtension {
+			implementation = 'com.google.cloud.tools.jib.gradle.extension.nativeimage.JibNativeImageExtension'
+			properties = [
+					imageName: 'com.vpp.psa.PowerSourcesAggregatorApplication'
+			]
+		}
+	}*/
+}
+
+
 //compileJava.dependsOn generateJOOQ
-flywayMigrate.finalizedBy(generateJOOQ)
+//flywayMigrate.finalizedBy(generateJOOQ)
 
 
 
